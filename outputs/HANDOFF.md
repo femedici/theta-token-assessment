@@ -1,3 +1,5 @@
+> **Submission update — 18 November 2026:** the user subsequently authorized a separate personal GitHub repository: https://github.com/femedici/theta-token-assessment (private), branch `codex/assessment-submission`. The root README is now the current English reviewer guide; the original brief is preserved verbatim in `docs/ASSESSMENT.md`. Fresh validation passed: 48 feature tests, 2 startup-safety tests and the production build. The notes below describe the original local handoff; their no-push restriction applies to the starter repository, which remains unchanged.
+
 # Assessment — implementação e roteiro de demonstração
 
 Data: 18/11/2026. Projeto: `test_assessment_v1`.
