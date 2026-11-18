@@ -45,6 +45,15 @@ test("details reject mismatched identity and malformed arrays", async () => {
   await expect(fetchTokenDetails(A)).rejects.toThrow(/pair/i);
 });
 
+test("malformed pair symbols fall back to their contract address", async () => {
+  axios.get.mockResolvedValue({ data: { body: { tokens: [token], pairs: [{ ...pair,
+    token0: { id: A, symbol: {} }, token1: { id: B, symbol: '   ' },
+  }] } } });
+  const { pairs } = await fetchTokenDetails(A);
+  expect(pairs[0].token0.symbol).toBe(A);
+  expect(pairs[0].token1.symbol).toBe(B);
+});
+
 test("invalid addresses are rejected before making any network request", async () => {
   for (const fetchData of [fetchTokenDetails, fetchTokenHistory, fetchTokenTransactions]) {
     await expect(fetchData("../../other-token")).rejects.toThrow(/address/i);

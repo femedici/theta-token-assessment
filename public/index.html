@@ -39,15 +39,16 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
   </body>
-  <script
+  <!-- Legacy chart bootstrap retained as inert reference; React owns the chart lifecycle. -->
+  <script type="text/plain"
     src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
     integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
     crossorigin="anonymous"
     referrerpolicy="no-referrer"
   ></script>
   <!-- <script src="datafeeds/udf/dist/bundle.js" async></script> -->
-  <script src="charting_library/charting_library.standalone.js"></script>
-  <script type="text/javascript">
+  <script type="text/plain" src="charting_library/charting_library.standalone.js"></script>
+  <script type="text/plain">
     $(document.body).ready(function () {
       function getParameterByName(name) {
         name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");

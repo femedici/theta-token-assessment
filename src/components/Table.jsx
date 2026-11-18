@@ -1,122 +1,164 @@
-import React, { useEffect } from "react";
-import { fetchSwapTransactionListRequest } from "../redux/actions/fetchSwapTrasactionAction";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  formatTimeDifference,
-  formatNumber,
-  checkTokenSymbol,
-} from "../utils/funcs";
+import { useSelector } from "react-redux";
+import { OpenInNew } from "@mui/icons-material";
+import { formatUsd, formatQuantity, getSwapView } from "../utils/tokenFormat";
 import "./style.css";
 
-const Table = () => {
-  const dispatch = useDispatch();
-  useEffect(() => {
-    // Dispatch the action to fetch token data
-    dispatch(fetchSwapTransactionListRequest());
-  }, [fetchSwapTransactionListRequest]);
-
-  const swapTransactionList = useSelector(
-    (state) => state.swapTransactionReducer.swapTransactionList
+const Table = ({ token, onRetry }) => {
+  const { swapTransactionList, loading, error, tokenId } = useSelector(
+    (state) => state.swapTransactionReducer,
   );
-
-  const tableStyle = {
-    backgroundColor: "#191919",
-    overflowY: "auto",
-    maxHeight: "90vh",
-    width: "100%",
-    display: "flex",
-    marginRight: "-100px",
-    marginTop: "30px",
-  };
-
-  const rowStyle = {
-    cursor: "pointer",
-  };
-
-  const textRight = {
-    textAlign: "right",
-  };
-
+  const { tokenList = [], detail } = useSelector((state) => state.tokenReducer);
+  const knownTokens = [
+    token,
+    ...tokenList,
+    ...(detail?.pairs || []).flatMap((pair) => [pair.token0, pair.token1]),
+  ];
+  const rows =
+    token && tokenId === token.id
+      ? swapTransactionList
+          .filter((item) => item.type === "Swap")
+          .map((item) => ({
+            item,
+            view: getSwapView(item, token.id, knownTokens),
+          }))
+          .filter(({ view }) => view)
+      : [];
+  let status;
+  if (!token)
+    status = (
+      <p className="section-state">Choose a token to see recent swaps.</p>
+    );
+  else if (loading)
+    status = (
+      <p className="section-state" role="status">
+        Loading {token.symbol} swaps…
+      </p>
+    );
+  else if (error)
+    status = (
+      <div className="section-state" role="alert">
+        <p>Recent swaps are unavailable.</p>
+        <button className="text-button" onClick={onRetry}>
+          Retry swaps
+        </button>
+      </div>
+    );
+  else if (!rows.length)
+    status = (
+      <p className="section-state" role="status">
+        No recent swaps reported for {token.symbol}.
+      </p>
+    );
   return (
-    <div style={tableStyle}>
-      <table
-        className="custom-table"
-        style={{
-          width: "100%",
-          marginRight: "0px",
-          fontSize: "1.2rem",
-        }}
-      >
-        <thead className="font-header">
-          <tr>
-            <th style={{ textAlign: "left", paddingLeft: "80px" }}>TIME</th>
-            <th>TXN</th>
-            <th>TYPE</th>
-            <th>SWAP</th>
-            <th style={textRight}>TOKEN AMOUNT</th>
-            <th style={textRight}>TOKEN AMOUNT</th>
-            <th style={{ textAlign: "right", paddingLeft: "80px" }}>
-              USD VALUE
-            </th>
-          </tr>
-        </thead>
-        <tbody className="font-regular" style={{ backgroundColor: "black" }}>
-          {swapTransactionList
-            .filter((item) => item.type === "Swap")
-            .map((rowData, index) => (
-              <tr
-                key={index}
-                style={
-                  rowData.amount0In * 1
-                    ? { color: "#449782" }
-                    : { color: "#cb4348" }
-                }
-              >
-                <td style={{ textAlign: "left", paddingLeft: "80px" }}>
-                  {formatTimeDifference(rowData.timestamp * 1)}
-                </td>
-                <td>
-                  <a
-                    href={`https://explorer.thetatoken.org/txs/${rowData.id}`}
-                    target="_blank"
-                  >
-                    <span style={{ color: "grey" }}>
-                      <i className="fa fa-share-from-square"></i>
-                    </span>
-                  </a>
-                </td>
-                <td>
-                  {rowData.type !== "Swap"
-                    ? rowData.type
-                    : rowData.amount0In * 1
-                    ? "Buy"
-                    : "Sell"}
-                </td>
-                <td>{`${checkTokenSymbol(
-                  rowData.symbol0
-                )} to ${checkTokenSymbol(rowData.symbol1)}`}</td>
-                <td style={textRight}>
-                  {formatNumber(
-                    rowData.amount0 * 1
-                      ? rowData.amount0 * 1
-                      : rowData.amount0In * 1 + rowData.amount0Out * 1
-                  )}
-                </td>
-                <td style={textRight}>
-                  {formatNumber(
-                    rowData.amount1 * 1
-                      ? rowData.amount1 * 1
-                      : rowData.amount1In * 1 + rowData.amount1Out * 1
-                  )}
-                </td>
-                <td style={{ textAlign: "right", paddingRight: "80px" }}>
-                  {"$" + formatNumber(rowData.amountUSD * 1)}
-                </td>
+    <section
+      className="panel transactions-panel"
+      aria-labelledby="transactions-title"
+      aria-busy={loading}
+    >
+      <div className="panel-heading">
+        <div>
+          <h2 id="transactions-title">Recent swaps</h2>
+          <p>
+            {token
+              ? `${token.symbol} across its liquidity pools`
+              : "Activity on ThetaSwap"}
+          </p>
+        </div>
+        {token && !loading && !error && (
+          <span className="count-badge">{rows.length}</span>
+        )}
+      </div>
+      {status || (
+        <div
+          className="table-scroll transactions-scroll"
+          tabIndex={0}
+          role="region"
+          aria-label={`${token.symbol} recent swaps`}
+        >
+          <table className="market-table">
+            <thead>
+              <tr>
+                <th scope="col">Time</th>
+                <th scope="col">Type</th>
+                <th scope="col">Token amount</th>
+                <th scope="col">Exchanged for</th>
+                <th scope="col">Value · USD</th>
+                <th scope="col">
+                  <span className="sr-only">Transaction</span>
+                </th>
               </tr>
-            ))}
-        </tbody>
-      </table>
-    </div>
+            </thead>
+            <tbody>
+              {rows.map(({ item, view }, index) => {
+                const date = new Date(Number(item.timestamp) * 1000);
+                const validDate = Number.isFinite(date.getTime());
+                return (
+                  <tr key={`${item.id}-${index}`}>
+                    <td>
+                      {validDate ? (
+                        <time
+                          dateTime={date.toISOString()}
+                          title={date.toLocaleString()}
+                        >
+                          {date.toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                          })}
+                          <small className="cell-subtext">
+                            {date.toLocaleTimeString("en-US", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: false,
+                            })}
+                          </small>
+                        </time>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                    <td>
+                      <span className={`swap-side ${view.side.toLowerCase()}`}>
+                        {view.side}
+                      </span>
+                    </td>
+                    <td>
+                      {formatQuantity(view.amount)}
+                      <small className="cell-subtext">{view.symbol}</small>
+                    </td>
+                    <td>
+                      {formatQuantity(view.counterAmount)}
+                      <small className="cell-subtext">
+                        {view.counterSymbol}
+                      </small>
+                    </td>
+                    <td>{formatUsd(item.amountUSD)}</td>
+                    <td>
+                      {/^0x[0-9a-f]{64}$/i.test(item.id) && (
+                        <a
+                          className="transaction-link"
+                          href={`https://explorer.thetatoken.org/txs/${item.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`View transaction ${item.id}`}
+                        >
+                          <OpenInNew fontSize="inherit" />
+                        </a>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {rows.length > 0 && !loading && !error && (
+        <p className="table-footnote">
+          Recent activity returned by ThetaSwap. Times shown in your local time
+          zone.
+        </p>
+      )}
+    </section>
   );
 };
 

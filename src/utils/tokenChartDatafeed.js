@@ -14,6 +14,11 @@ export function normalizeHistoryPoints(points = []) {
 
 export function createTokenDatafeed(token, points) {
   const history = normalizeHistoryPoints(points);
+  const positivePrices = history.map(point => point.value).filter(value => value > 0);
+  // Keep about five significant digits on the axis; never round the source closes.
+  const decimals = positivePrices.length
+    ? Math.min(12, Math.max(2, 4 - Math.floor(Math.log10(Math.min(...positivePrices)))))
+    : 2;
   const pending = new Set();
   let disposed = false;
   const later = callback => {
@@ -54,7 +59,7 @@ export function createTokenDatafeed(token, points) {
           timezone: 'Etc/UTC',
           format: 'price',
           minmov: 1,
-          pricescale: 1000000000000,
+          pricescale: 10 ** decimals,
           currency_code: 'TFUEL',
           has_intraday: false,
           has_daily: true,

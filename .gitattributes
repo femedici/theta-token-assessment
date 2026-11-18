@@ -1,0 +1,2 @@
+# Archived source is deliberately byte-for-byte identical, including original whitespace.
+docs/reference/*.txt -whitespace

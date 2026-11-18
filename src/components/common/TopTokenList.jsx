@@ -1,26 +1,16 @@
-import React, { useEffect, useRef, useState } from "react";
-import "./style.css"; // Import your CSS file
-import TopToken from "./TopToken"; // Import the TopToken component
-import classNames from "classnames";
+import TopToken from "./TopToken";
 
-const TopTokenList = ({ tokenList }) => {
-  const listRef = useRef(null);
-  const [isOverflowed, setIsOverFlowed] = useState(false);
-
-  useEffect(() => {
-    const listElement = listRef.current;
-    setIsOverFlowed(listElement.scrollWidth > listElement.clientWidth);
-  }, [tokenList, isOverflowed]);
-
-  return (
-    <div ref={listRef} className="tokenlist-body">
-      <div className={classNames({ tokenlist: 1, overflowed: isOverflowed })}>
-        {tokenList.map((item, index) => (
-          <TopToken key={index} itemData={item} />
-        ))}
-      </div>
-    </div>
-  );
-};
+const TopTokenList = ({ tokenList, onSelect, selectedTokenId }) => (
+  <div className="tokenlist-body" aria-label="Most active tokens">
+    {tokenList.map((token) => (
+      <TopToken
+        key={token.id}
+        itemData={token}
+        onSelect={onSelect}
+        selected={token.id === selectedTokenId}
+      />
+    ))}
+  </div>
+);
 
 export default TopTokenList;

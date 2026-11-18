@@ -85,3 +85,16 @@ test('does not deliver queued callbacks after the selected chart is disposed', (
   jest.runAllTimers();
   expect(callback).not.toHaveBeenCalled();
 });
+
+test.each([[20, 1000], [0.04, 1000000], [0.000000001, 1000000000000], [0, 100]])(
+  'uses readable axis precision for a price of %s without changing the close', (value, pricescale) => {
+    const feed = createTokenDatafeed(token, [{ time: day, value }]);
+    const resolved = jest.fn();
+    const bars = jest.fn();
+    feed.resolveSymbol(token.id, resolved, jest.fn());
+    feed.getBars({ ticker: token.id }, '1D', { from: 0, to: day * 2 / 1000 }, bars, jest.fn());
+    jest.runAllTimers();
+    expect(resolved.mock.calls[0][0].pricescale).toBe(pricescale);
+    expect(bars.mock.calls[0][0][0].close).toBe(value);
+  },
+);

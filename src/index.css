@@ -8,3 +8,8 @@ body {
 code {
   font-family: "altivo";
 }
+
+* { box-sizing: border-box; }
+body { background: #0b1110; color: #edf4f1; font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+button, input { font-family: inherit; }
+button { cursor: pointer; }

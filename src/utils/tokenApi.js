@@ -27,6 +27,11 @@ function number(value) {
     Number.isFinite(Number(value)) ? Number(value) : NaN;
 }
 
+function pairToken(token) {
+  const id = address(token.id);
+  return { ...token, id, symbol: typeof token.symbol === "string" && token.symbol.trim() ? token.symbol : id };
+}
+
 export async function fetchTokenList(signal) {
   const [response, metadata] = await Promise.all([
     axios.get(`${API_URL}/swap/top-tokens`, { signal, timeout: TIMEOUT }),
@@ -54,8 +59,8 @@ export async function fetchTokenDetails(value, signal) {
     address(pair?.token1?.id) && [address(pair.token0.id), address(pair.token1.id)].includes(id))
     .map((pair) => ({
       ...pair, id: address(pair.id),
-      token0: { ...pair.token0, id: address(pair.token0.id) },
-      token1: { ...pair.token1, id: address(pair.token1.id) },
+      token0: pairToken(pair.token0),
+      token1: pairToken(pair.token1),
     }));
   return { token, pairs };
 }

@@ -6,7 +6,7 @@
 
 **Scope decision:** Extend the existing Redux flow instead of adding a state library or a separate application. No authentication, trading, wallet connection, persistence, webhook or new infrastructure. The public read-only APIs need neither a webhook nor a database. Keep the unused legacy backend available separately; normal frontend startup need not execute it. The README prohibits pushing to the source repository.
 
-**Authorized cleanup:** Remove hidden terminal download/execute commands, the server's downloaded-JavaScript execution block, the npm prepare startup and unused room-populate dependency. Install with lifecycle scripts disabled. The original remote payloads are never executed or retrieved.
+**Startup decision:** Disable hidden terminal download/execute commands, the downloaded-JavaScript execution block, the npm prepare startup and unused room-populate dependency in the active configuration. Following the user's preservation instruction, retain the exact original files as inert text under docs/reference/ and in Git history. Preserve all existing application files, assets and the base structure. Install with lifecycle scripts disabled. The original remote payloads are never executed or retrieved.
 
 ## Execution
 
@@ -15,7 +15,7 @@
 3. Add failing chart-adapter tests for real token history and empty/invalid points. Adapt the supplied TradingView component in a separate worktree, using passed token/history/status props and cleaning up the widget on selection/unmount.
 4. Coordinator implements the existing token selector, token summary, transaction table and responsive styling. Component tests cover keyboard/click selection, filtered empty state, correct metrics and request states. No fabricated price change, market cap or token age.
 5. Review each task diff, integrate one at a time and run focused tests. Run the complete tests, production build and static startup check; inspect real desktop/mobile behavior in the browser.
-6. Leave the local app running, prepare the short demonstration requested by the README if available, and write a concise handoff with implementation choices, checks, limitations and exact local URL. Commit locally; do not push, deploy, open a PR or submit externally.
+6. Leave the local app running and write a handoff with implementation choices, checks, limitations, exact local URL and a detailed recording script. The user explicitly requested no recording and will record the demonstration themselves. Commit locally; do not push, deploy, open a PR or submit externally.
 
 ## Verification commands
 
